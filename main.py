@@ -8,6 +8,7 @@ populasi = []
 jml_individu = 50
 jml_gen = 10
 p = 0.5
+jumlah_generasi = 500
 
 def fitness_function(x1,x2):
     return 3*x1 - 2*x2
@@ -36,7 +37,7 @@ class Individu :
         self.decimalx1 = bintodecimal(self.bitx1, jml_gen)
         self.decimalx2 = bintodecimal(self.bitx2, jml_gen)
         self.fitness = fitness_function(self.decimalx1,self.decimalx2)
-sumbuy=[]
+
 iloop = 1
 while iloop <= jml_individu :
     calon = []
@@ -57,17 +58,13 @@ while iloop <= jml_individu :
     #Memasukan setiap individu ke kelas individu
     individu = Individu(calon, iloop)
     if individu.decimalx1 >=3 and individu.decimalx1<=10 and individu.decimalx2 >=3 and individu.decimalx2<=10 and individu.fitness>0:
+        #Menyisipkan individu ke populasi
         populasi.append(individu)
         iloop+=1
     else :
         continue
-    #Menyisipkan individu ke populasi
     
     
-
-# totalfit = 0
-# for i in populasi :
-   
 #membuat persentase probabilitas
 sum = 0
 for i in populasi   :
@@ -83,7 +80,6 @@ for i in populasi   :
     i.probkumulatif = probkumulatif
     urut +=1
 
-#Menuliskan populasibaiblits = rbopabiliatsarfo  iin rnagr
 urut = 1
 for manusia in populasi   :
     print(f"Bit Individu ke - {urut} = {manusia.bit}")
@@ -96,7 +92,7 @@ for manusia in populasi   :
 #Tahapan Cycle Generasi
 
 
-jumlah_generasi = 500
+sumbuy=[]
 igen = 1
 while igen <= jumlah_generasi:
     # Tahap Seleksi menggunakan Probabilitas Kumulatif
@@ -214,13 +210,6 @@ while igen <= jumlah_generasi:
         
     child2termutasi[index1],  child2termutasi[index2] =  child2termutasi[index2],  child2termutasi[index1]
     
-    # print(f"\n GENERASi ke - {igen}")    
-    # print(f"\n Parent 1 = {Parent1}")
-    # print(f"\n Parent 2 = {Parent2}")
-    # print(f"\n child 1 = {child1termutasi}")
-    # print(f"\n child 2 = {child2termutasi}")
-    # print(f"\n")
-    
     #mencari dan menggantikan nilai fitness terendah
     child1x1 = child1termutasi[0:int(jml_gen/2)]
     child1x2 = child1termutasi[int(jml_gen/2):int(jml_gen)]
@@ -250,6 +239,8 @@ while igen <= jumlah_generasi:
             if q.id == minimID:
                 q.bit =  child1termutasi
                 q.fitness = fitnesschild1
+                q.decimalx1 = decimalchild1x1
+                q.decimalx2 = decimalchild1x2
                 break
             else:
                 continue
@@ -270,7 +261,8 @@ while igen <= jumlah_generasi:
             if q.id == minimID:
                 q.bit =  child2termutasi
                 q.fitness = fitnesschild2
-                
+                q.decimalx1 = decimalchild2x1
+                q.decimalx2 = decimalchild2x2
                 break
             else:
                 continue
@@ -292,18 +284,9 @@ while igen <= jumlah_generasi:
     avg = sum/jml_individu
     sumbuy.append(avg)
     print(f"\nFitness average Generasi ke - {igen} = {avg}")
-    
-    # if igen==1 or igen==2:
-    #     urut = 1
-    #     for manusia in populasi   :
-    #         print(f"Bit Individu ke - {urut} = {manusia.bit}")
-    #         print(f"Fitness Individu ke - {urut} = {manusia.fitness}")
-    #         print(f"Probabilitas Individu ke - {urut} = {manusia.probabilitas}")
-    #         print(f"Prob Kumulatif Individu ke - {urut} = {manusia.probkumulatif}")
-    #         urut +=1         
-    
     igen+=1
-#Menuliskan populasibaiblits = rbopabiliatsarfo  iin rnagr
+
+
 urut = 1
 print(f"\n50 Individu Hasil Iterasi Terakhir :")
 for manusia in populasi   :
