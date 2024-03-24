@@ -135,7 +135,7 @@ while igen <= jumlah_generasi:
                     dapet =1
                     break
         parents_pair.append(Parent1)
-        parents_pair.append(Parent1)
+        parents_pair.append(Parent2)
         semua_parent.append(parents_pair)
     
     #Crossover
@@ -247,7 +247,7 @@ while igen <= jumlah_generasi:
             minimID = 0
             minimbit = []
             for p in populasi :
-                if p.fitness <minimfitness :
+                if p.fitness <minimfitness and fitnesschild>=p.fitness:
                     minimfitness = p.fitness
                     minimbit = p.bit
                     minimID = p.id
