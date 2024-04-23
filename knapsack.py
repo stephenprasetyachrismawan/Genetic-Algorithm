@@ -4,6 +4,8 @@ import numpy as np
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 np.set_printoptions(suppress=True)  # Untuk menghindari notasi ilmiah
+
+#membaca dataset
 df = pd.read_csv("tb_data_knapsack.csv")
 df = df[["size", "count","freq"]]
 print(df)
@@ -23,8 +25,8 @@ w3 = 0
 
 def fitness( fds, fdc, fdf):
     w1 = 0.3
-    w2 = 0.3
-    w3 = 0.4
+    w2 = 0.4
+    w3 = 0.3
     
     res = w1*(1-fdf)+ w2*(1-fdc) + w3*fds
     return res
@@ -47,15 +49,12 @@ for i in combined_array :
 
 max_size = 950
 populasi = []
-jml_individu = 50
+jml_individu = 100
 jml_gen = num_rows
 p = 0.5
-jumlah_generasi = 70
+jumlah_generasi = 100
 sumbuy=[]
 sumbuy2 = []
-
-#Membuat class individu untuk dapat mengenali bit dan fitness
-
 
 #Membuat class Individu untuk dapat mengenali bit dan fitness
 class Individu : 
@@ -129,18 +128,7 @@ for i in populasi   :
     i.probkumulatif = probkumulatif
     urut +=1
 
-urut = 1
-for manusia in populasi   :
-    print(f"Bit Individu ke - {urut} = {manusia.bit}")
-    print(f"Fitness Individu ke - {urut} = {manusia.fitness}")
-    print(f"Probabilitas Individu ke - {urut} = {manusia.probabilitas}")
-    print(f"Prob Kumulatif Individu ke - {urut} = {manusia.probkumulatif}")
-    urut +=1
-
-
 #Tahapan Cycle Generasi
-
-
 
 igen = 1
 while igen <= jumlah_generasi:

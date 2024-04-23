@@ -67,37 +67,39 @@ sumbuy=[]
 sumbuy2 = []
 rentangatas = 3
 rentangbawah=-3
-penalty = []
+
 def generate(jml_individu, jml_gen):
     res_total = []
    
     for i in range(1, jml_individu+1):
-        res = []
-        res2={}
-        for j in range(1,jml_gen+1):
-            #melakukan pemilihan pengacakan antara 0 sampai 1 dengan digit maksimal 4
-            r = round(random.uniform(0, 1), 4)
-            if r<p :
-                r = 0 #jika nilai random kurang dari 0,5 maka jadi 0
-            else :
-                r = 1 #jika nilai random lebih dari 0,5 maka jadi 1
-                
-            #Menyisipkan gen (nilai r) ke calon individu
-            res.append(r)
-        bitx1,bitx2 = pisahkanbit(res)
-        decx1 = bintodec(bitx1)
-        decx2 = bintodec(bitx2)
-        res2= {
-            "bits": res,
-            "bit X1" : bitx1,
-            "dec X1" : decx1,
-            "bit X2" : bitx2,
-            "dec X2" : decx2,
-            "fitness" : fitness(decx1,decx2)
-        }
-        if res2['dec X1'] < rentangbawah or res2['dec X1']>rentangatas or res2['dec X2'] < rentangbawah or res2['dec X2']>rentangatas :
-            penalty.append(res2['bits'])
-            res2['fitness']+= 500
+        
+        tidak_sesuai_rentang = 1
+        while tidak_sesuai_rentang == 1 :
+            res = []
+            res2={}
+            for j in range(1,jml_gen+1):
+                #melakukan pemilihan pengacakan antara 0 sampai 1 dengan digit maksimal 4
+                r = round(random.uniform(0, 1), 4)
+                if r<p :
+                    r = 0 #jika nilai random kurang dari 0,5 maka jadi 0
+                else :
+                    r = 1 #jika nilai random lebih dari 0,5 maka jadi 1
+                    
+                #Menyisipkan gen (nilai r) ke calon individu
+                res.append(r)
+            bitx1,bitx2 = pisahkanbit(res)
+            decx1 = bintodec(bitx1)
+            decx2 = bintodec(bitx2)
+            res2= {
+                "bits": res,
+                "bit X1" : bitx1,
+                "dec X1" : decx1,
+                "bit X2" : bitx2,
+                "dec X2" : decx2,
+                "fitness" : fitness(decx1,decx2)
+            }
+            if res2['dec X1'] >= rentangbawah and res2['dec X1']<=rentangatas and res2['dec X2'] >= rentangbawah and res2['dec X2']<=rentangatas :
+                tidak_sesuai_rentang = 0
         res_total.append(res2)
     
     return res_total
@@ -117,7 +119,10 @@ def min_max_normalisasi(data):
     else:
         scaled_data = [(x - min_val) / (max_val - min_val) for x in data]
     return scaled_data
-
+def min_max_nonnegatif(data):
+    min_val = min(data)
+    scaled_data = [x + abs(min_val) + 0.1 for x in data]
+    return scaled_data
 
 
 
@@ -183,19 +188,19 @@ def seleksi(half2elite,nonelite):
     fitness_half2elite = []
     for i in half2elite:
         fitness_half2elite.append(i['fitness'])
-    normalisasi_half2elite = min_max_normalisasi(fitness_half2elite)
+    nonnegatif_half2elite = min_max_nonnegatif(fitness_half2elite)
     a=0
     for i in half2elite:
-        i['fitness_scaled']=normalisasi_half2elite[a]
+        i['fitness_scaled']=nonnegatif_half2elite[a]
         a+=1
         
     fitness_nonelite = []
     for i in nonelite:
         fitness_nonelite.append(i['fitness'])
-    normalisasi_nonelite = min_max_normalisasi(fitness_nonelite)
+    nonnegatif_nonelite = min_max_nonnegatif(fitness_nonelite)
     a=0
     for i in nonelite:
-        i['fitness_scaled']=normalisasi_nonelite[a]
+        i['fitness_scaled']=nonnegatif_nonelite[a]
         a+=1
     
     #memasukkan probabilitas
@@ -237,7 +242,7 @@ def seleksi(half2elite,nonelite):
             for l in half2elite :
                 if l['probabilitas_kumulatif'] < s or l['jadiparent']==1:
                     continue
-                elif l['probabilitas_kumulatif'] >= s:
+                elif l['probabilitas_kumulatif'] >= s and l['jadiparent']==0:
                     l['jadiparent'] = 1
                     Parent1 = l['bits']
                     dapet =1
@@ -249,7 +254,7 @@ def seleksi(half2elite,nonelite):
             for l in nonelite :
                 if l['probabilitas_kumulatif'] < s or l['jadiparent']==1:
                     continue
-                elif l['probabilitas_kumulatif'] >= s:
+                elif l['probabilitas_kumulatif'] >= s and l['jadiparent']==0:
                     l['jadiparent'] = 1
                     Parent2 = l['bits']
                     dapet =1
@@ -272,88 +277,78 @@ def crossover_mutation(all_parents):
     for _ in range(jml_gen):
         nilai_acak = random.randint(0, 1)
         masking_co1.append(nilai_acak)
-    henti = 0
-    while henti == 0 :
+    
         
-        childtotal = []
-        for pairs in all_parents:
-            ParentOne , ParentTwo = pairs[0] , pairs[1]
-            child1 = []
-            child2 = []
-            i = 0
-            while i < len(masking_co1) and i < len(ParentOne) and i < len(ParentTwo):
-                if masking_co1[i]==1 :
-                    child1.append(ParentTwo[i])
-                    child2.append(ParentOne[i])
-                elif masking_co1[i]==0 :
-                    child1.append(ParentOne[i])
-                    child2.append(ParentTwo[i])
-                i+=1    
+    childtotal = []
+    for pairs in all_parents:
+        ParentOne , ParentTwo = pairs[0] , pairs[1]
+        child1 = []
+        child2 = []
+        i = 0
+        while i < len(masking_co1) and i < len(ParentOne) and i < len(ParentTwo):
+            if masking_co1[i]==1 :
+                child1.append(ParentTwo[i])
+                child2.append(ParentOne[i])
+            elif masking_co1[i]==0 :
+                child1.append(ParentOne[i])
+                child2.append(ParentTwo[i])
+            i+=1    
             #Mutasi
             #Probabilitas Mutasi
-            prob_mutasi = 1/(jml_gen)
-            
+        prob_mutasi = 1/(jml_gen)
+     
             #Mutasi Child 1
-            child1termutasi = []
-            randommutasi = random.uniform(0,1)
-            for k in child1 : 
-                if randommutasi<prob_mutasi :
-                    if k==0:
-                        child1termutasi.append(1)
-                    elif k==1:
-                        child1termutasi.append(0)
-                else :
-                    child1termutasi.append(k)
-            #Mutasi Child 2
-            child2termutasi = []
-            randommutasi = random.uniform(0,1)
-            for k in child1 :
-                if randommutasi<prob_mutasi :
-                    if k==0:
-                        child2termutasi.append(1)
-                    elif k==1:
-                        child2termutasi.append(0)
-                else :
-                    child2termutasi.append(k)
+        child1termutasi = []
+        randommutasi = random.uniform(0,1)
+        for k in child1 : 
+            if randommutasi<prob_mutasi :
+                if k==0:
+                    child1termutasi.append(1)
+                elif k==1:
+                    child1termutasi.append(0)
+            else :
+                child1termutasi.append(k)
+        #Mutasi Child 2
+        child2termutasi = []
+        randommutasi = random.uniform(0,1)
+        for k in child1 :
+            if randommutasi<prob_mutasi :
+                if k==0:
+                    child2termutasi.append(1)
+                elif k==1:
+                    child2termutasi.append(0)
+            else :
+                child2termutasi.append(k)
 
             #MUTASI KEDUA
             #menggunakan swap mutation
             #CHILD 1
-            index1=0
-            index2 =0
-            while 1 :
-                index1 = random.randint(0,(jml_gen)-1)
-                index2 = random.randint(0,(jml_gen)-1)
-                if index1!=index2:
-                    break
+        index1=0
+        index2 =0
+        while 1 :
+            index1 = random.randint(0,(jml_gen)-1)
+            index2 = random.randint(0,(jml_gen)-1)
+            if index1!=index2:
+                break
                 
-            child1termutasi[index1],  child1termutasi[index2] =  child1termutasi[index2],  child1termutasi[index1]
+        child1termutasi[index1],  child1termutasi[index2] =  child1termutasi[index2],  child1termutasi[index1]
             
             #CHILD 2
-            index1=0
+        index1=0
             
-            index2 =0
-            while 1 :
+        index2 =0
+        while 1 :
                 
-                index1 = random.randint(0,(jml_gen)-1)
-                index2 = random.randint(0,(jml_gen)-1)
-                if index1!=index2:
-                    break
-                
-            child2termutasi[index1],  child2termutasi[index2] =  child2termutasi[index2],  child2termutasi[index1]
-            
-            childtotal.append(child1termutasi)
-            childtotal.append(child2termutasi)
-        danger = 0
-        for m in childtotal:
-            for n in penalty:
-                if m==n:
-                    danger = 1
-                    break
-            if danger == 1:
+            index1 = random.randint(0,(jml_gen)-1)
+            index2 = random.randint(0,(jml_gen)-1)
+            if index1!=index2:
                 break
-        if danger == 0:
-            henti =1
+            
+        child2termutasi[index1],  child2termutasi[index2] =  child2termutasi[index2],  child2termutasi[index1]
+            
+        childtotal.append(child1termutasi)
+        childtotal.append(child2termutasi)
+        
     return childtotal
 def subtitusi(childtotal, nonelite):
     childtotalbaru = []
@@ -375,8 +370,7 @@ def subtitusi(childtotal, nonelite):
         
     for i in childtotalbaru:
         if i['dec X1'] < rentangbawah or i['dec X1'] > rentangatas or i['dec X2'] < rentangbawah or i['dec X2'] > rentangatas:
-            penalty.append(i['bits'])
-            i['fitness'] += 500
+            continue
         
         for j in nonelite:
             if i['fitness'] < j['fitness']: 
@@ -397,13 +391,14 @@ def subtitusi(childtotal, nonelite):
 #Implementasi
              
 #1. Melakukan generasi awal sebanyak 100 individu
-populasi_awal = generate(100,34)
+populasi_awal = generate(1000,34)
 populasi_baru =populasi_awal
 gen = 1
 minFit = 0
 minBit=[]
 minX1 = 0
 minX2 = 0
+sumbuy = []
 for i in range(1, jumlah_generasi+1) :
     populasi2 = urut_by_fitness_elite(populasi_baru)
     nonelite,half1elite,half2elite = elite(populasi2)
@@ -432,10 +427,26 @@ for i in range(1, jumlah_generasi+1) :
             minBit =  i['bits']
             minX1 = i['dec X1']
             minX2 = i['dec X2']
+        sumbuy.append(i['fitness'])
         a+=1
     print(f"\nGenerasi Ke {gen}")
     print(f"Minimum Fitness = {minFit}")
     print(f"Minimum Bit = {minBit}")
     print(f"X1 = {minX1}")
     print(f"X2 = {minX2}")
+    
     gen+=1
+sumbux = []
+for i in range(1,jumlah_generasi+1):
+    for j in range(1,jml_individu+1):
+        sumbux.append(i)
+
+grafik_fitness_vs_generasi = plt.figure()
+plt.plot(sumbux,sumbuy,'o')
+plt.xlabel('Generasi')
+plt.ylabel('Nilai Fitness')
+plt.title('Grafik Perkembangan Nilai Fitness vs Generasi')
+plt.show()
+
+
+    
