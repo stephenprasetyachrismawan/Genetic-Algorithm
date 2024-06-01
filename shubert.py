@@ -46,11 +46,13 @@ populasi = []
 jml_individu = 100
 jml_gen = 34
 p = 0.5
-jumlah_generasi = 500
+jumlah_generasi = 500000
 sumbuy=[]
 sumbuy2 = []
 rentangatas = 3
 rentangbawah=-3
+X1_min = []
+X2_min = []
 
 #Membuat class Individu untuk dapat mengenali bit dan fitness
 class Individu : 
@@ -306,8 +308,10 @@ while igen <= jumlah_generasi:
             if p.fitness < minfit :
                 minfit = p.fitness
                 minBit = p.bit
+        
         ax+=1
     minX1 = bintodec(minBit[17:])
+    
     minX2 = bintodec(minBit[:17])    
     sumbuy2.append(minfit)
     print(f"\nBest Fitness Generasi ke - {igen} = {minfit}")

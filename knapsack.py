@@ -25,8 +25,8 @@ w3 = 0
 
 def fitness( fds, fdc, fdf):
     w1 = 0.3
-    w2 = 0.4
-    w3 = 0.3
+    w2 = 0.3
+    w3 = 0.4
     
     res = w1*(1-fdf)+ w2*(1-fdc) + w3*fds
     return res
